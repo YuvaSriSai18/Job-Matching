@@ -1,14 +1,14 @@
 import { initializeApp } from "firebase/app";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyAs7nSa-VR453aoNQv_ZRjK9O-5sSScRLE",
+  apiKey: import.meta.env.VITE_FIREBASE_API,
   authDomain: "cloud0924.firebaseapp.com",
-  databaseURL: "https://cloud0924-default-rtdb.firebaseio.com",
+  databaseURL: import.meta.env.VITE_DB_URL,
   projectId: "cloud0924",
-  storageBucket: "cloud0924.appspot.com",
-  messagingSenderId: "587763029124",
-  appId: "1:587763029124:web:86ead4af552af86b6f9ed1",
-  measurementId: "G-V4MBMCYVDR",
+  storageBucket: import.meta.env.VITE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_MSGSENDER_ID,
+  appId: import.meta.env.VITE_APP_ID,
+  measurementId: import.meta.env.VITE_MEASUREMENT_ID,
 };
 
 // Initialize Firebase
