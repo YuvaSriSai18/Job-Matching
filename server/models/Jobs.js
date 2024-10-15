@@ -7,7 +7,7 @@ const jobSchema = new mongoose.Schema(
     description: { type: String, required: true },
     requirements: { type: [String], required: true },
     location: { type: String, required: true },
-    company: { type: String, required: true },
+    company: { type: String },
     salaryRange: { type: String },
     jobType: {
       type: String,
@@ -19,6 +19,9 @@ const jobSchema = new mongoose.Schema(
       ref: "User", // Reference to the User model
       required: true,
     },
+    postedDate:{
+      type:Date
+    }
   },
   { timestamps: true } // Automatically adds createdAt and updatedAt fields
 );

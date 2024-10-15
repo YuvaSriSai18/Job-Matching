@@ -3,17 +3,21 @@ require("dotenv").config();
 const express = require("express");
 const router = express.Router();
 
+const sendToGemini = require("./Gemini");
+
+const Resume = require("../models/Resume");
+
 const options = {
   apikey: process.env.OCR_API_KEY,
-  language: "eng", // English
+  language: "eng",
   isOverlayRequired: true,
 };
 
 const processFile = (fileUrl) => {
   return OCR.parseImageFromUrl(fileUrl, options)
     .then((parsedResult) => {
-      console.log("parsedText: \n", parsedResult.parsedText);
-      console.log("ocrParsedResult: \n", parsedResult.ocrParsedResult);
+      // console.log("parsedText: \n", parsedResult.parsedText);
+      // console.log("ocrParsedResult: \n", parsedResult.ocrParsedResult);
       return parsedResult;
     })
     .catch((err) => {
@@ -23,7 +27,7 @@ const processFile = (fileUrl) => {
 };
 
 router.post("/", async (req, res) => {
-  const { fileUrl } = req.body;
+  const { fileUrl, email } = req.body;
 
   if (!fileUrl) {
     return res.status(400).json({ message: "File URL is required." });
@@ -36,15 +40,29 @@ router.post("/", async (req, res) => {
     const combinedParsedText = parsedResult.ocrParsedResult.ParsedResults.map(
       (result) => result.ParsedText
     ).join("\n");
-    // Combine them into a single string, separated by new lines
 
-    console.log(combinedParsedText);
+    const jsonData = await sendToGemini(combinedParsedText);
 
-    return res.status(200).json({
-      message: "File processed successfully.",
-      parsedResults: parsedResult.ocrParsedResult.ParsedResults,
-      ParsedText: combinedParsedText,
-    });
+    // Update or create the Resume entry
+    const resumeUpdateResponse = await Resume.findOneAndUpdate(
+      { "personalInformation.email": email },
+      {
+        $set: {
+          personalInformation: jsonData.personalInformation,
+          summary: jsonData.summary,
+          workExperience: jsonData.workExperience,
+          education: jsonData.education,
+          certifications: jsonData.certifications,
+          skills: jsonData.skills,
+          projects: jsonData.projects,
+        },
+      },
+      { new: true, upsert: true }
+    );
+
+    return res
+      .status(200)
+      .json({ message: "File processed and resume updated successfully." });
   } catch (error) {
     return res
       .status(500)
