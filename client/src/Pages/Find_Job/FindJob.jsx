@@ -6,9 +6,18 @@ import * as api from "../../apis/index";
 import Sidebar from "../../Components/Find_Job/Sidebar";
 import PaginationControlled from "./PaginationControlled"; // Import the Pagination Controlled component
 import { useSelector } from "react-redux";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
+import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
+  Typography,
+  useMediaQuery,
+} from "@mui/material";
 export default function FindJob() {
-  // Using useSelector inside the component
+  const matches = useMediaQuery("(min-width:600px)");
+
   const resume = useSelector((state) => state.resume.resumeData);
   const resumeData = {
     skills: (resume && resume.skills) || ["Software"],
@@ -91,21 +100,53 @@ export default function FindJob() {
       <Box
         maxWidth="100%"
         display="flex"
+        flexDirection={{
+          xs: "column",
+          sm: "row",
+        }}
         m={2}
-        border="1px solid black"
-        p={2}
+        // border="1px solid black"
+        p={{ xs: 1, sm: 2 }}
         gap={1}
         justifyContent="space-evenly"
       >
-        <Box width="20%" border="1px solid black" borderRadius={2} p={3}>
-          <Sidebar
-            filters={filters}
-            setFilters={setFilters}
-            resumeSkillsEnabled={resumeSkillsEnabled}
-            setResumeSkillsEnabled={setResumeSkillsEnabled} // Pass down the state
-          />
+        <Box
+          width={{ xs: "100%", sm: "35%", md: "20%" }}
+          border="1px solid black"
+          borderRadius={2}
+          height="fit-content"
+          p={3}
+        >
+          {matches && (
+            <Sidebar
+              filters={filters}
+              setFilters={setFilters}
+              resumeSkillsEnabled={resumeSkillsEnabled}
+              setResumeSkillsEnabled={setResumeSkillsEnabled} // Pass down the state
+            />
+          )}
+          {!matches && (
+            <Accordion>
+              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                <Typography>Filters</Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                <Sidebar
+                  filters={filters}
+                  setFilters={setFilters}
+                  resumeSkillsEnabled={resumeSkillsEnabled}
+                  setResumeSkillsEnabled={setResumeSkillsEnabled} // Pass down the state
+                />
+              </AccordionDetails>
+            </Accordion>
+          )}
         </Box>
-        <Box width="75%" border="1px solid black" p={2}>
+        <Box
+          width={{ xs: "100%", sm: "75%" }}
+          border="1px solid black"
+          p={2}
+          borderRadius={2}
+        >
           {currentJobs.length > 0 ? (
             currentJobs.map((job, i) => <JobCard key={job.id || i} job={job} />)
           ) : (

@@ -1,72 +1,152 @@
+import React, { useState } from "react";
 import {
-  Typography,
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
   Box,
   List,
   ListItem,
-  CircularProgress,
-  Snackbar,
-  Chip,
+  Typography,
+  useMediaQuery,
 } from "@mui/material";
-import React, { useState } from "react";
 import { useSelector } from "react-redux";
-import SignIn from "../../Components/auth/SignIn";
-import UploadImage from "../../Components/UploadImage";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+
+import PersonelInfo from "../../Components/Profile/PersonelInfo";
+import WorkExperience from "../../Components/Profile/WorkExperience";
+import Projects from "../../Components/Profile/Projects";
 
 export default function Profile() {
   const userData = useSelector((state) => state.auth.userData);
   const resumeData = useSelector((state) => state.resume.resumeData);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
 
-  const handleUploadError = (message) => {
-    setError(message);
-  };
+  // State to handle which section is active
+  const [activeSection, setActiveSection] = useState("Personal Info");
+  const matches = useMediaQuery("(min-width:600px)");
 
-  const handleCloseSnackbar = () => {
-    setError("");
-  };
-  return (
-    <div>
-      {userData.email ? (
-        <>
-          <Box
-            component="img"
-            src={userData.photoUrl}
-            width="200px"
-            borderRadius="12px"
-            alt={userData.displayName}
-            sx={{ marginBottom: 2 }}
+  // Sidebar items
+  const sections = [
+    "Personal Info",
+    "Work Experience",
+    "Education",
+    "Certifications",
+    "Skills",
+    "Projects",
+    "Interests",
+    "Publications",
+    "Awards",
+  ];
+
+  // Function to render content based on active section
+  const renderContent = () => {
+    switch (activeSection) {
+      case "Personal Info":
+        return (
+          <PersonelInfo
+            userObj={userData}
+            resumeObj={resumeData.personalInformation}
           />
-          <Typography variant="h6">Name: {userData.displayName}</Typography>
-          <Typography variant="h6">Email: {userData.email}</Typography>
-          {userData.skills && userData.skills.length > 0 && (
-            <>
-              <Typography variant="h6">Skills:</Typography>
-              <Box display={"flex"} flexWrap={"wrap"} gap={1} m={1}>
-                {userData.skills.map((skill, index) => (
-                  <Chip label={skill} key={index} />
-                ))}
-              </Box>
-            </>
+        );
+      case "Work Experience":
+        return <WorkExperience workExperience={resumeData.workExperience} />;
+      case "Education":
+        return <Typography variant="h6">This is Education content.</Typography>;
+      case "Certifications":
+        return (
+          <Typography variant="h6">This is Certifications content.</Typography>
+        );
+      case "Skills":
+        return <Typography variant="h6">This is Skills content.</Typography>;
+      case "Projects":
+        return <Projects projects={resumeData.projects} />;
+      case "Interests":
+        return <Typography variant="h6">This is Interests content.</Typography>;
+      case "Publications":
+        return (
+          <Typography variant="h6">This is Publications content.</Typography>
+        );
+      case "Awards":
+        return <Typography variant="h6">This is Awards content.</Typography>;
+      default:
+        return (
+          <Typography variant="h6">
+            Select a section from the sidebar.
+          </Typography>
+        );
+    }
+  };
+
+  return (
+    <>
+      <Box
+        maxWidth={"100%"}
+        display={"flex"}
+        flexDirection={{ xs: "column", sm: "row" }}
+      >
+        {/* Sidebar */}
+        <Box
+          width={{ xs: "100%", sm: "30%", md: "20%" }}
+          p={2}
+          borderRight={"1px solid #ddd"}
+        >
+          {!matches && (
+            <Accordion>
+              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                Details
+              </AccordionSummary>
+              <AccordionDetails>
+                <List>
+                  {sections.map((section) => (
+                    <ListItem
+                      key={section}
+                      button
+                      onClick={() => setActiveSection(section)}
+                      sx={{
+                        cursor: "pointer",
+                        padding: "10px",
+                        backgroundColor:
+                          activeSection === section ? "#f0f0f0" : "transparent",
+                        "&:hover": {
+                          backgroundColor: "#e0e0e0",
+                        },
+                      }}
+                    >
+                      <Typography variant="body1">{section}</Typography>
+                    </ListItem>
+                  ))}
+                </List>
+              </AccordionDetails>
+            </Accordion>
           )}
-        </>
-      ) : (
-        <SignIn />
-      )}
+          {matches && (
+            <List>
+              {sections.map((section) => (
+                <ListItem
+                  key={section}
+                  button
+                  onClick={() => setActiveSection(section)}
+                  sx={{
+                    cursor: "pointer",
+                    padding: "10px",
+                    backgroundColor:
+                      activeSection === section ? "#f0f0f0" : "transparent",
+                    "&:hover": {
+                      backgroundColor: "#e0e0e0",
+                    },
+                  }}
+                >
+                  <Typography variant="body1">{section}</Typography>
+                </ListItem>
+              ))}
+            </List>
+          )}
+        </Box>
 
-      {/* Upload Image Component */}
-      <UploadImage onError={handleUploadError} setLoading={setLoading} />
-
-      {/* Loading Spinner */}
-      {loading && <CircularProgress sx={{ marginTop: 2 }} />}
-
-      {/* Snackbar for error messages */}
-      <Snackbar
-        open={!!error}
-        autoHideDuration={6000}
-        onClose={handleCloseSnackbar}
-        message={error}
-      />
-    </div>
+        {/* Main Content Area */}
+        <Box width={{ xs: "100%", sm: "80%" }} p={2}>
+          {renderContent()}
+        </Box>
+      </Box>
+    </>
   );
 }

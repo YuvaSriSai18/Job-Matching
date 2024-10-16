@@ -8,7 +8,7 @@ dotenv.config();
 
 app.use(
   cors({
-    origin:[ "http://localhost:5173" , "https://job-matching-18.vercel.app"],
+    origin: ["http://localhost:5173", "https://job-matching-18.vercel.app"],
     methods: "GET,POST,PUT,DELETE",
   })
 );
@@ -33,8 +33,8 @@ const JobsRouter = require("./routes/Jobs");
 app.use("/jobs", JobsRouter);
 const userRouter = require("./routes/User");
 app.use("/api/users", userRouter);
-const userResume = require('./routes/Resume')
-app.use('/api/resumedata',userResume)
+const userResume = require("./routes/Resume");
+app.use("/api/resumedata", userResume);
 // console.log(__dirname);
 
 app.get("/", (req, res) => {

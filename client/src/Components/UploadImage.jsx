@@ -5,18 +5,14 @@ import BackupRoundedIcon from "@mui/icons-material/BackupRounded";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import app from "../Utils/firebase";
 import * as api from "../apis/index";
-import { useDispatch, useSelector } from "react-redux";
-import { setResumeData } from "../reducers/Resume/ResumeSlice";
+import { useSelector } from "react-redux";
 
 export default function UploadImage() {
   const [file, setFile] = useState(null);
-  const [imageURL, setImageURL] = useState("");
   const [email, setEmail] = useState("example@example.com");
   const [uploading, setUploading] = useState(false);
-  const [ParsedText, setParsedText] = useState();
 
   const userData = useSelector((state) => state.auth.userData);
-  const dispatch = useDispatch();
 
   useEffect(() => {
     if (userData) {
@@ -72,7 +68,6 @@ export default function UploadImage() {
         const storageRef = ref(storage, folder + file.name);
         await uploadBytes(storageRef, file);
         const downloadUrl = await getDownloadURL(storageRef);
-        setImageURL(downloadUrl);
 
         await api.sendFileUrl({
           email: email,
@@ -84,7 +79,6 @@ export default function UploadImage() {
           email: email,
         });
 
-        setParsedText(res.data.ParsedText);
         URL.revokeObjectURL(file.preview); // Clean up the object URL
         setFile(null); // Reset file after upload
       } catch (error) {

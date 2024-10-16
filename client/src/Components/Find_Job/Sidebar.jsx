@@ -24,7 +24,7 @@ export default function Sidebar({
 
   return (
     <Box>
-      <Typography variant="h6">Filters</Typography>
+      {/* <Typography variant="h6">Filters</Typography> */}
 
       {/* Job Title Filter */}
       <TextField
